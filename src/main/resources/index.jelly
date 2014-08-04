@@ -1,6 +1,5 @@
-<!--
-  This view is used to render the installed plugins page.
--->
 <div>
-  This plugin is a sample to explain how to write a Jenkins plugin.
+  This plugin ensures we build the last commit it call is done on its git
+  webhook url. Then it offers way to display last master commit according
+  extra-columns plugin.
 </div>
