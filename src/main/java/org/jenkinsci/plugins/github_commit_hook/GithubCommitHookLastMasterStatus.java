@@ -1,13 +1,15 @@
 package org.jenkinsci.plugins.github_commit_hook;
 
-import java.util.logging.Logger;
-
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import hudson.Extension;
+import hudson.model.AbstractBuild;
 import hudson.model.BallColor;
 import hudson.model.Job;
 import hudson.model.Run;
+import hudson.plugins.git.Branch;
+import hudson.plugins.git.Revision;
+import hudson.plugins.git.util.BuildData;
 import hudson.views.ListViewColumn;
 import hudson.views.ListViewColumnDescriptor;
 
@@ -17,19 +19,39 @@ public class GithubCommitHookLastMasterStatus extends ListViewColumn {
     public GithubCommitHookLastMasterStatus() {
     }
 
-    public BallColor getIconColor(Job<?, ?> job) {
+    private String getBuildBranchName(AbstractBuild<?, ?> build) {
 
-        GithubCommitHookAction action = null;
+        GithubCommitHookAction action = build.getAction(GithubCommitHookAction.class);
+        if (action != null) {
+            return format(action.ref);
+        }
+
+        BuildData data = build.getAction(BuildData.class);
+        if (data == null) {
+            return "";
+        }
+
+        Revision revision = data.getLastBuiltRevision();
+        if (revision == null || revision.getBranches().isEmpty()) {
+            return "";
+        }
+
+        // return same value as GitBranchTokenMacro otherwise
+        Branch branch = revision.getBranches().iterator().next();
+        return format(branch.getName());
+    }
+
+    private String format(String branchName) {
+        return branchName.substring(branchName.lastIndexOf('/')+1);
+    }
+
+    public BallColor getIconColor(Job<?, ?> job) {
 
         for (Run<?, ?> r : job.getBuilds()) {
 
-            action = r.getAction(GithubCommitHookAction.class);
+            String branchName = getBuildBranchName((AbstractBuild<?, ?>) r);
 
-            if (action == null) {
-                continue;
-            }
-
-            if (action.ref.equals("refs/heads/master")) {
+            if (branchName.equals("master")) {
                 return r.getIconColor();
             }
         }
