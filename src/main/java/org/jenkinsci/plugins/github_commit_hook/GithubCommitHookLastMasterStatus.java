@@ -1,5 +1,6 @@
 package org.jenkinsci.plugins.github_commit_hook;
 
+import org.jenkinsci.plugins.tokenmacro.DataBoundTokenMacro.Parameter;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import hudson.Extension;
@@ -14,6 +15,9 @@ import hudson.views.ListViewColumn;
 import hudson.views.ListViewColumnDescriptor;
 
 public class GithubCommitHookLastMasterStatus extends ListViewColumn {
+
+    @Parameter
+    public int length = 32;
 
     @DataBoundConstructor
     public GithubCommitHookLastMasterStatus() {
@@ -41,8 +45,9 @@ public class GithubCommitHookLastMasterStatus extends ListViewColumn {
         return format(branch.getName());
     }
 
-    private String format(String branchName) {
-        return branchName.substring(branchName.lastIndexOf('/')+1);
+    private String format(String name) {
+        String branchName = name.substring(name.lastIndexOf('/')+1);
+        return branchName.substring(0, Math.min(length, branchName.length()));
     }
 
     public BallColor getIconColor(Job<?, ?> job) {

@@ -12,9 +12,13 @@ import hudson.plugins.git.util.BuildData;
 
 import org.jenkinsci.plugins.tokenmacro.DataBoundTokenMacro;
 import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
+import org.jenkinsci.plugins.tokenmacro.DataBoundTokenMacro.Parameter;
 
 @Extension(optional=true)
 public class GithubCommitHookRefTokenMacro extends DataBoundTokenMacro {
+
+    @Parameter
+    public int length = 32;
 
     @Override
     public boolean acceptsMacroName(String macroName) {
@@ -49,7 +53,8 @@ public class GithubCommitHookRefTokenMacro extends DataBoundTokenMacro {
         return format(branch.getName());
     }
 
-    private String format(String branchName) {
-        return branchName.substring(branchName.lastIndexOf('/')+1);
+    private String format(String name) {
+        String branchName = name.substring(name.lastIndexOf('/')+1);
+        return branchName.substring(0, Math.min(length, branchName.length()));
     }
 }
