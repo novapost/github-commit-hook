@@ -18,7 +18,7 @@ import org.jenkinsci.plugins.tokenmacro.DataBoundTokenMacro.Parameter;
 public class GithubCommitHookRefTokenMacro extends DataBoundTokenMacro {
 
     @Parameter
-    public int length = 32;
+    public int length = 20;
 
     @Override
     public boolean acceptsMacroName(String macroName) {

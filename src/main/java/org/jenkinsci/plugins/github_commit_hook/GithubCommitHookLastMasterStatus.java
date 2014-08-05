@@ -17,7 +17,7 @@ import hudson.views.ListViewColumnDescriptor;
 public class GithubCommitHookLastMasterStatus extends ListViewColumn {
 
     @Parameter
-    public int length = 32;
+    public int length = 20;
 
     @DataBoundConstructor
     public GithubCommitHookLastMasterStatus() {
