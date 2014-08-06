@@ -3,7 +3,6 @@ package org.jenkinsci.plugins.github_commit_hook;
 import java.io.IOException;
 
 import hudson.Extension;
-import hudson.model.AbstractProject;
 import hudson.model.TaskListener;
 import hudson.model.AbstractBuild;
 import hudson.plugins.git.Branch;
@@ -12,7 +11,6 @@ import hudson.plugins.git.util.BuildData;
 
 import org.jenkinsci.plugins.tokenmacro.DataBoundTokenMacro;
 import org.jenkinsci.plugins.tokenmacro.MacroEvaluationException;
-import org.jenkinsci.plugins.tokenmacro.DataBoundTokenMacro.Parameter;
 
 @Extension(optional=true)
 public class GithubCommitHookRefTokenMacro extends DataBoundTokenMacro {
@@ -29,13 +27,9 @@ public class GithubCommitHookRefTokenMacro extends DataBoundTokenMacro {
     public String evaluate(AbstractBuild<?, ?> build, TaskListener listener, String macroName)
             throws MacroEvaluationException, IOException, InterruptedException  {
 
-        AbstractProject<?, ?> project = build.getProject();
-        GithubCommitHookJobProperty jobProperty = project.getProperty(GithubCommitHookJobProperty.class);
-
-        // return our property by default because build was triggered by our
-        // hoook.
-        if (jobProperty != null) {
-            return format(jobProperty.getRef());
+        GithubCommitHookAction action = build.getAction(GithubCommitHookAction.class);
+        if (action != null) {
+            return format(action.ref);
         }
 
         BuildData data = build.getAction(BuildData.class);

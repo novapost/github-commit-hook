@@ -28,19 +28,6 @@ public class GithubCommitHookRunListner extends RunListener<AbstractBuild> {
 
         // restrict build to current commit
         build.addAction(new RevisionParameterAction(jobProperty.getCommit()));
-    }
-
-    /**
-     * Removes junk job property at the end.
-     */
-    @Override
-    public void onCompleted(AbstractBuild build, TaskListener listener) {
-
-        AbstractProject<?, ?> project = build.getProject();
-        GithubCommitHookJobProperty jobProperty = project.getProperty(GithubCommitHookJobProperty.class);
-        
-        if (jobProperty == null) return;
-
         build.addAction(new GithubCommitHookAction(jobProperty.getRef(), jobProperty.getCommit()));
 
         try {
