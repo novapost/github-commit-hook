@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 
 import jenkins.model.Jenkins;
 
+import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
 import org.acegisecurity.Authentication;
@@ -60,12 +61,28 @@ public class GithubCommitHook extends GitHubWebHook {
     @Override
     public void processGitHubPayload(String payload, Class<? extends Trigger<?>> triggerClass) {
 
-        JSONObject o = JSONObject.fromObject(payload);
-        String repoUrl = o.getJSONObject("repository").getString("url");
-        String pusherName = o.getJSONObject("pusher").getString("name");
+        String repoUrl;
+        String pusherName;
+        String ref;
+        String commit;
 
-        String ref = o.getString("ref");
-        String commit = o.getJSONObject("head_commit").getString("id");
+        JSONObject o = JSONObject.fromObject(payload);
+
+        // no commit set when create PR > we quit!
+        if (o.getJSONObject("head_commit").isNullObject()) {
+            LOGGER.fine("Empty head_commit ... skip.");
+            return;
+        }
+
+        try {
+            repoUrl = o.getJSONObject("repository").getString("url");
+            pusherName = o.getJSONObject("pusher").getString("name");
+            ref = o.getString("ref");
+            commit = o.getJSONObject("head_commit").getString("id");
+        } catch (JSONException jsone) {
+            LOGGER.warning("Invalid payload: " + payload);
+            return;
+        }
 
         LOGGER.info("Received POST for " + repoUrl);
         LOGGER.fine("Full details of the POST was " + o.toString());
